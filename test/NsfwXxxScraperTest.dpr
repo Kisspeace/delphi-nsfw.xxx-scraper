@@ -1,4 +1,5 @@
-﻿program NsfwXxxScraperTest;
+﻿//♡2022 by Kisspeace. https://github.com/kisspeace
+program NsfwXxxScraperTest;
 
 {$APPTYPE CONSOLE}
 
