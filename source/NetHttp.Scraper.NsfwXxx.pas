@@ -1,4 +1,8 @@
-﻿//♡2022 by Kisspeace. https://github.com/kisspeace
+﻿{* ♡2022 by Kisspeace. https://github.com/kisspeace
+  v1.0.0
+    https://github.com/Kisspeace/delphi-nsfw.xxx-scraper/issues/1 (mindjek07)
+    Scraper support: hdporn.pics, pornpic.xxx
+*}
 unit NetHttp.Scraper.NsfwXxx;
 
 interface
@@ -10,7 +14,6 @@ uses
 
 const
   URL_NSFWXXX = 'https://nsfw.xxx';
-  //URL_PORNPIC = 'https://pornpic.xxx';
 
 type
 
@@ -32,7 +35,8 @@ type
        AOrientations: TNsfwOris = [Straight, Gay, Shemale, cartoons]
      ): boolean; overload;
      {}
-     function GetRelatedPosts(APostId: int64; APageNum: integer; AOut: TNsfwXXXItemList): boolean;
+     function GetRelatedPosts(APostUrl: string; APageNum: integer; AOut: TNsfwXxxItemList): boolean; overload;
+     function GetRelatedPostsById(APostId: int64; APageNum: integer; AOut: TNsfwXXXItemList): boolean; overload;
      constructor Create;
      destructor Destroy; override;
   end;
@@ -80,6 +84,23 @@ begin
   Result := ParsePostPage(Content);
 end;
 
+function TNsfwXxxScraper.GetRelatedPosts(APostUrl: string; APageNum: integer;
+  AOut: TNsfwXxxItemList): boolean;
+var
+  UniqueStr: string;
+  Start, Count: integer;
+begin
+  Start := Pos('/post/', ApostUrl);
+  Count := Pos('?', APostUrl);
+
+  if ( Count < 1 ) then
+    Count := Length(APostUrl);
+
+  Count := ( Count - Start );
+  UniqueStr := Copy(APostUrl, Start, Count);
+  Result := Get(Host + UniqueStr + '/related-posts?page=' + APageNum.ToString, Aout);
+end;
+
 function TNsfwXxxScraper.GetItems(
   AOut: TNsfwXXXItemList;
   AReqParam: string;
@@ -93,10 +114,10 @@ begin
     Result := Get(CreateUrl(ASearchtype, AReqParam, APagenum,
       ASort, Atypes, AOrientations, Host), Aout)
   else
-    Result := GetRelatedPosts(AReqParam.ToInt64, APageNum, AOut);
+    Result := GetRelatedPosts(AReqParam, APageNum, AOut);
 end;
 
-function TNsfwXxxScraper.GetRelatedPosts(APostId: int64; APageNum: integer;
+function TNsfwXxxScraper.GetRelatedPostsById(APostId: int64; APageNum: integer;
   Aout: TNsfwXXXItemList): boolean;
 begin
   Result := Get(Host + '/post/' + inttostr(ApostId) + '/related-posts?page=' +

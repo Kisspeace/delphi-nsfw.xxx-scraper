@@ -31,7 +31,6 @@ begin
     Asynchronous := false;
     AutomaticDecompression := [THttpCompressionMethod.Any];
     AllowCookies := false;
-    CustomHeaders['Host']            := 'nsfw.xxx';
     Useragent                        := 'Mozilla/5.0 (Windows NT 10.0; rv:91.0) Gecko/20100101 Firefox/91.0';
     Customheaders['Accept']          := 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8';
     CustomHeaders['Accept-Language'] := 'en-US,en;q=0.5';
@@ -69,7 +68,7 @@ var
   str: string;
   Item: TNsfwXxxItem;
 
-  PrintItems: boolean = true;
+  PrintItems: boolean = false;
   AutoStart: boolean  = true;
 
   procedure Test(ARequest: string; AUrlType: TNsfwUrlType);
@@ -82,6 +81,8 @@ var
       Client.GetItems(items, ARequest, AUrlType, 1, newest, [image, video, gallery]);
       if ( Items.Count > 0 ) then begin
         WritelnWA(Prefix + 'OK', 10);
+        if ( not Items[0].ValidId ) then
+          WritelnWA('  ' + Prefix + ' INVALID ID', 14);
         if PrintItems then print(Items);
       end else begin
         WritelnWA(Prefix + '( Items < 1 )', 14);
@@ -93,11 +94,11 @@ var
     end;
   end;
 
-begin
-  try
-    Items := TNsfwXxxItemList.Create;
-    Client := NewScraper;
-    //Client.Host := URL_PORNPIC;
+  procedure StartTest(AHost: string);
+  begin
+    Client.Host := AHost;
+    Writeln('Host: ' + AHost);
+
     if not AutoStart then begin
       Write('Request: ');
       ReadLn(Request);
@@ -107,7 +108,7 @@ begin
 
     Test(Request, Default);
     Item := Items[0];
-    Test(Item.Id.ToString, Related);
+    Test(Item.PostUrl, Related);
     Test(Item.Username, user);
     Test('/r/pawg', Category);
 
@@ -116,6 +117,8 @@ begin
       Page := Client.GetPage(Item.PostUrl);
       if Length(Page.Items) > 0 then begin
         WritelnWA('GetPage: OK', 10);
+        if ( not Page.Items[0].ValidId ) then
+          WritelnWA('  GetPage: INVALID ID', 14);
         if PrintItems then begin
           str := TJson.Stringify<TNsfwXxxPostPage>(Page, true);
           writeln(Str);
@@ -128,6 +131,16 @@ begin
         WritelnWA('GetPage: ' + E.ClassName + ' - ' + E.Message, 12);
       end;
     end;
+  end;
+
+begin
+  try
+    Items := TNsfwXxxItemList.Create;
+    Client := NewScraper;
+
+    StartTest('https://nsfw.xxx');
+    StartTest('https://pornpic.xxx');
+    StartTest('https://hdporn.pics');
 
     Writeln('fin.');
     Readln;

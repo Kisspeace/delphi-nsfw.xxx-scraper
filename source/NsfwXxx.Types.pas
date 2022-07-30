@@ -40,6 +40,7 @@ type
     PostUrl: string;
     ItemType: TNsfwItemType;
     function GetThumb: string;
+    function ValidId: boolean;
     class function New: TNsfwXxxItem; static;
     constructor Create(AId: int64);
   end;
@@ -69,7 +70,12 @@ end;
 
 class function TNsfwXxxItem.New: TNsfwXxxItem;
 begin
-  Result := TNsfwXxxItem.Create(0);
+  Result := TNsfwXxxItem.Create(-1);
+end;
+
+function TNsfwXxxItem.ValidId: boolean;
+begin
+  Result := ( Self.Id > 0 );
 end;
 
 constructor TNsfwXxxItem.Create(AId: int64);

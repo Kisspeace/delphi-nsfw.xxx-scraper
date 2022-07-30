@@ -133,8 +133,14 @@ begin
       if Assigned(Content) then begin
 
         //Caption
-        SetValue(Item.Caption, Content.GetElementByTagName('p'));
+        SetValue(Item.Caption, Content.GetElementByTagName('p')); // nsfw.xxx only
         //Item.Caption := THTMLEncoding.HTML.Decode(Item.Caption);
+
+        //PostUrl
+        Tmp := Content.GetElementByClass('slider_init_href', true);
+        if Assigned(tmp) then
+          Item.PostUrl := Tmp.GetAttribute('href');
+
 
         //Itemtype
         if Assigned(Content.GetElementByClass('sh-section__media')) then
@@ -152,6 +158,14 @@ begin
         end else begin
           if Length(Item.Thumbnails) > 1 then
             Item.ItemType := TNsfwItemType.Gallery;
+        end;
+
+        // Parse Captions for ( pornpic.xxx, hdporn.pics )
+        if ( Tmps.Count > 0 ) and ( Item.Caption.IsEmpty ) then begin
+          var LNode: TNode;
+          LNode := Tmps.GetFirst.Attributes.GetNamedItem('alt');
+          if Assigned(LNode) then
+            Item.Caption := LNode.Value;
         end;
 
         for X := 0 to Tmps.Count - 1 do begin
@@ -188,9 +202,9 @@ begin
               //Dislikes
               SetValue(Item.Dislikes, Tmp.GetElementByID('dislike-value-id-' + Item.Id.ToString));
               //Post Url
-              Tmp := Tmp.GetElementByClass('js-report-button');
-              if Assigned(Tmp) then
-                Item.PostUrl := Tmp.GetAttribute('data-url');
+//              Tmp := Tmp.GetElementByClass('js-report-button');
+//              if Assigned(Tmp) then
+//                Item.PostUrl := Tmp.GetAttribute('data-url');
             end;
           end;
 
@@ -221,6 +235,7 @@ begin
   try
     Doc := Parser.ParseString(Acontent);
     E := Doc.DocumentElement.GetElementByTagName('body');
+    //writeln(E.GetInnerHTML);
     Result := ParsePostsFromNodes(E.ChildElements);
   finally
     FreeandNil(Doc);
