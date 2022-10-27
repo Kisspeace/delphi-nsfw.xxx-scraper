@@ -136,10 +136,12 @@ begin
         //Item.Caption := THTMLEncoding.HTML.Decode(Item.Caption);
 
         //PostUrl
-        Tmp := Content.GetElementByClass('slider_init_href', true);
-        if Assigned(tmp) then
-          Item.PostUrl := Tmp.GetAttribute('href');
+        Tmp := Content.GetElementByClass('slider_init_href', true); { Image or video }
+        if not Assigned(tmp) then
+          Tmp := Content.GetElementByTagName('a', 0); { Gallery }
 
+        if Assigned(Tmp) then
+          Item.PostUrl := Tmp.GetAttribute('href');
 
         //Itemtype
         if Assigned(Content.GetElementByClass('sh-section__media')) then
