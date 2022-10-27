@@ -5,8 +5,7 @@ interface
 
 uses
   NsfwXxx.Types, classes, sysutils,
-  //System.NetEncoding,
-  {*HTMLp*}
+  { HTMLp - https://github.com/RomanYankovsky/HTMLp }
   HTMLp.Entities,
   HTMLp.DOMCore,
   HTMLp.HtmlTags,
@@ -33,11 +32,11 @@ implementation
 function GetTagType(var AReqParam: string): TNsfwTagType;
 begin
   if ( Pos('/R/', uppercase(AReqParam)) > 0 ) then
-    Result := TNsfwTagType.RedditTag    //Reddit
+    Result := TNsfwTagType.RedditTag    // Reddit
   else if ( Pos('.', AReqParam) > 0 ) then
-    Result := TNsfwTagType.SourceTag    //Source
+    Result := TNsfwTagType.SourceTag    // Source
   else
-    Result := TNsfwTagType.CategoryTag; //Category
+    Result := TNsfwTagType.CategoryTag; // Category
 end;
 
 function ParsePostPage(const AContent: string): TNsfwXxxPostPage;
@@ -253,10 +252,9 @@ var
   First, Last: string;
   TagType: TnsfwtagType;
 begin
-
   //Orientations
   if not ( AOrientations = [] ) then begin
-    for i :=0 to 4 do begin
+    for i := 0 to 4 do begin
       if TNsfwOri(i) in AOrientations then begin
         LOrientations := LOrientations + 'nsfw[]=' + inttostr(i) + '&';
       end;
@@ -283,6 +281,7 @@ begin
         first := AHost + '/index-page/' + inttostr(Apagenum);
       end else
         first := AHost + '/search-page/' + inttostr(Apagenum);
+
     end else if (Asort = popular) then begin
       //popular
       if Aparam.IsEmpty then begin
@@ -302,16 +301,13 @@ begin
       end;
     end;
 
-
   end else if ( AMode = user ) then begin
     //if search by user
     last := 'user=' + Aparam;
+    first := AHost + '/page/' + inttostr(APageNum);
 
-    if ( Asort = newest ) then begin
-      first := AHost + '/page/' + inttostr(Apagenum) + '/newest';
-    end else begin
-      first := AHost + '/page/' + inttostr(Apagenum);
-    end;
+    if ( Asort = newest ) then
+      first := first + '/newest';
 
   end else begin
     //if search by category
