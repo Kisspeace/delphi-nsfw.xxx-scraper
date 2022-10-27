@@ -59,6 +59,16 @@ begin
   end;
 end;
 
+function UrlTypeToStr(A: TNsfwUrlType): string;
+begin
+  case Ord(A) of
+    0: Result := 'Default';
+    1: Result := 'User';
+    2: Result := 'Category';
+    3: Result := 'Related';
+  end;
+end;
+
 
 var
   Client: TNsfwXxxScraper;
@@ -76,7 +86,7 @@ var
   var
     Prefix: string;
   begin
-    Prefix := 'GetItems test ' + ord(AurlType).ToString + ': ';
+    Prefix := 'GetItems test ' + UrlTypeToStr(AurlType) + ': ';
     try
       Items.Clear;
       Client.GetItems(items, ARequest, AUrlType, 1, newest, [image, video, gallery]);
