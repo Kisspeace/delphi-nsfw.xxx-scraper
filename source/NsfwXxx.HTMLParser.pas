@@ -295,7 +295,7 @@ begin
     end else begin
       //mewest
       if Aparam.IsEmpty then begin
-        first := AHost + '/search-page/' + inttostr(Apagenum) + '/newest';
+        first := AHost + '/page/' + inttostr(Apagenum) + '/newest';
       end else begin
         first := AHost + '/search-page/' + inttostr(Apagenum);
         last := last + '&sort=newest'
