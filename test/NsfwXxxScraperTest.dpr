@@ -6,12 +6,13 @@ program NsfwXxxScraperTest;
 {$R *.res}
 
 uses
-  System.SysUtils, Windows,
-  NetHttp.Scraper.NsfwXxx,
-  NsfwXxx.Types,
+  System.SysUtils,
+  Windows,
   Net.HttpClient,
   XSuperObject,
-  NsfwXxx.HTMLParser;
+  NetHttp.Scraper.NsfwXxx in '..\source\NetHttp.Scraper.NsfwXxx.pas',
+  NsfwXxx.HTMLParser in '..\source\NsfwXxx.HTMLParser.pas',
+  NsfwXxx.Types in '..\source\NsfwXxx.Types.pas';
 
 procedure WritelnWA(AStr: string; AAttrs: word);
 var
