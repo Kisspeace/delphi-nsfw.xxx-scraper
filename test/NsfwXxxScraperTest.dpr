@@ -79,8 +79,10 @@ var
   str: string;
   Item: TNsfwXxxItem;
 
+  { --------- Settings ---------- }
   PrintItems: boolean = false;
   AutoStart: boolean  = true;
+  { ----------------------------- }
 
   procedure Test(ARequest: string; AUrlType: TNsfwUrlType);
   var
