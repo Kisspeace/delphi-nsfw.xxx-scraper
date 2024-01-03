@@ -45,13 +45,17 @@ type
     constructor Create(AId: int64);
   end;
 
+  PNsfwXxxItem = ^TNsfwXxxItem;
+
   TNsfwXxxItemAr = TArray<TNsfwXxxItem>;
   TNsfwXxxItemList = Tlist<TNsfwXxxItem>;
 
   TNsfwXxxPostPage = record
     Poster: string;
     Items: TNsfwXxxItemAr; // Items[0] is current post
+    function GetCurrentPost: PNsfwXxxItem;
     function GetContentUrl: String;
+    function HasItems: boolean;
     class function New: TNsfwXxxPostPage; static;
     constructor Create(AId: int64);
   end;
@@ -123,6 +127,18 @@ begin
   if ( (Length(Items) > 0) And (length(Items[0].Thumbnails) > 0) ) then begin
       Result := Items[0].Thumbnails[0]
   end;
+end;
+
+function TNsfwXxxPostPage.GetCurrentPost: PNsfwXxxItem;
+begin
+  if HasItems
+    then Result := @Items[0]
+    else Result := Nil;
+end;
+
+function TNsfwXxxPostPage.HasItems: boolean;
+begin
+  Result := (Length(Items) > 0);
 end;
 
 class function TNsfwXxxPostPage.New: TNsfwXxxPostPage;

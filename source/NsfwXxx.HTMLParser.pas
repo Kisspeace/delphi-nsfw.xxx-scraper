@@ -39,12 +39,52 @@ begin
     Result := TNsfwTagType.CategoryTag; // Category
 end;
 
+function ExtractIdFromPostUrl(const AUrl: string): Int64;
+const
+  ID_DIGITS = '1234567890';
+var
+  lPos: Integer;
+  lId: string;
+
+  function ReadWithWhiteListRightToLeft(const ASource: string;
+    const AWhiteList: string; AStartPos: integer): string;
+  var
+    I, N: integer;
+    lChar: ^Char;
+    CharCharL: Char;
+  begin
+    Result := '';
+    for I := AStartPos downto Low(ASource) do
+    begin
+      lChar := @ASource[I];
+      if (Pos(lChar^, AWhiteList) > 0)
+        then Result := lChar^ + Result
+        else Break;
+    end;
+  end;
+
+begin
+  Result := -1;
+  lPos := Pos('?', AUrl);
+  if (lPos > 0) then
+  begin
+    lId := ReadWithWhiteListRightToLeft(AUrl, ID_DIGITS, lPos - 1);
+    Result := StrToInt64(lId);
+  end;
+end;
+
+procedure FixItem(var AItem: TNsfwXxxItem);
+begin
+  AItem.Id := ExtractIdFromPostUrl(AItem.PostUrl);
+end;
+
 function ParsePostPage(const AContent: string): TNsfwXxxPostPage;
 var
   Parser: THTMLParser;
   Doc: TDocument;
   Nodes: TNodeList;
   LPoster: string;
+  lCurItem: PNsfwXxxItem;
 begin
   Result := TNsfwXxxPostPage.New;
   Doc := nil;
@@ -62,6 +102,19 @@ begin
     );
     Result.Poster := LPoster;
 
+    { for sites that do not provide a post id in data-post-id }
+    if (Result.HasItems and (not Result.GetCurrentPost.ValidId)) then
+    begin
+      lCurItem := Result.GetCurrentPost;
+      var lMetaOgUrl: TElement;
+      lMetaOgUrl := Doc.DocumentElement.GetElementByAttr('property', 'og:url');
+      if Assigned(lMetaOgUrl) then
+      begin
+        lCurItem.PostUrl := lMetaOgURL.GetAttribute('content');
+        FixItem(lCurItem^);
+      end;
+    end;
+
   finally
     FreeandNil(Doc);
     Parser.Free;
@@ -69,7 +122,7 @@ begin
 end;
 
 function ParsePostsFromNodes(ANodes: TNodeList;
- AProcHasPoster: TProcParsePostHasPoster = nil): TNsfwXxxItemAr;
+  AProcHasPoster: TProcParsePostHasPoster = nil): TNsfwXxxItemAr;
 var
   Nodes, Tmps: TNodeList;
   N, NTmp: TNode;
@@ -105,7 +158,8 @@ var
 
 begin
   Result := [];
-  for I := 0 to ANodes.Count - 1 do begin
+  for I := 0 to ANodes.Count - 1 do
+  begin
     N := ANodes.Items[I];
     try
       E := (N as TElement);
@@ -218,6 +272,10 @@ begin
         end;
 
       end;
+
+      { for sites that do not provide a post id in data-post-id }
+      if not Item.ValidId then
+        FixItem(Item);
 
       Result := Result +[Item];
     end;
