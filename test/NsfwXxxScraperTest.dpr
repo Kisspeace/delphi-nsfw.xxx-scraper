@@ -80,7 +80,7 @@ var
   Item: TNsfwXxxItem;
 
   { --------- Settings ---------- }
-  PrintItems: boolean = false;
+  PrintItems: boolean = true;
   AutoStart: boolean  = true;
   { ----------------------------- }
 
@@ -154,6 +154,7 @@ begin
     StartTest('https://nsfw.xxx');
     StartTest('https://pornpic.xxx');
     StartTest('https://hdporn.pics');
+    StartTest('https://sexynudes.tv');
 
     Writeln('fin.');
     Readln;
